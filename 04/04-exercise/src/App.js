@@ -1,33 +1,45 @@
-
 /*
 Create a `withStorage` higher order component that manages saving and retrieving
 the `sidebarIsOpen` state to local storage
 */
 
-import './index.css'
-import React from 'react'
-import MenuIcon from 'react-icons/lib/md/menu'
-import { set, get, subscribe } from './local-storage'
+import "./index.css";
+import React from "react";
+import MenuIcon from "react-icons/lib/md/menu";
+import { set, get, subscribe } from "./local-storage";
+
+const withStorage = (storageKey, defValue) => Component => {
+  return class extends React.Component {
+    static WrappedComponent = Component;
+
+    state = {
+      [storageKey]: get(storageKey, defValue)
+    };
+
+    componentDidMount() {
+      this.unsubscribe = subscribe(() => {
+        this.setState({
+          [storageKey]: get(storageKey)
+        });
+      });
+    }
+
+    set = value => {
+      set(storageKey, value);
+    };
+
+    setStorage = () => {};
+    render() {
+      return (
+        <Component {...this.state} setStorage={this.set} {...this.props} />
+      );
+    }
+  };
+};
 
 class App extends React.Component {
-  state = {
-    sidebarIsOpen: get('sidebarIsOpen', true)
-  }
-
-  componentDidMount() {
-    this.unsubscribe = subscribe(() => {
-      this.setState({
-        sidebarIsOpen: get('sidebarIsOpen')
-      })
-    })
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
   render() {
-    const { sidebarIsOpen } = this.state
+    const { sidebarIsOpen, setStorage } = this.props;
     return (
       <div className="app">
         <header>
@@ -35,20 +47,20 @@ class App extends React.Component {
             className="sidebar-toggle"
             title="Toggle menu"
             onClick={() => {
-              set('sidebarIsOpen', !sidebarIsOpen)
+              setStorage(!sidebarIsOpen);
             }}
           >
-            <MenuIcon/>
+            <MenuIcon />
           </button>
         </header>
 
         <div className="container">
-          <aside className={sidebarIsOpen ? 'open' : 'closed'}/>
-          <main/>
+          <aside className={sidebarIsOpen ? "open" : "closed"} />
+          <main />
         </div>
       </div>
-    )
+    );
   }
 }
 
-export default App
+export default withStorage("sidebarIsOpen", false)(App);
