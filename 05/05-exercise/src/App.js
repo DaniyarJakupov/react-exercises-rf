@@ -14,56 +14,105 @@
 //   beneath it to naturally compose both the UI and the state
 //   needed to render
 // - Make sure <GeoAddress> supports the user moving positions
-import './index.css'
-import React from 'react'
-import LoadingDots from './LoadingDots'
-import Map from './Map'
-//import getAddressFromCoords from './getAddressFromCoords'
+import "./index.css";
+import React from "react";
+import LoadingDots from "./LoadingDots";
+import Map from "./Map";
+import getAddressFromCoords from "./getAddressFromCoords";
 
-class App extends React.Component {
+class GeoAddress extends React.Component {
+  state = {
+    address: "",
+    error: ""
+  };
+
+  componentDidMount() {
+    this.fetch();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.coords !== prevProps.coords) {
+      this.fetch();
+    }
+  }
+
+  fetch = async () => {
+    try {
+      const address = await getAddressFromCoords(
+        this.props.coords.lat,
+        this.props.coords.lng
+      );
+      this.setState({ address });
+    } catch (error) {
+      this.setState({ error });
+    }
+  };
+
+  render() {
+    return this.props.render(this.state);
+  }
+}
+
+class GeoPosition extends React.Component {
   state = {
     coords: null,
     error: null
-  }
+  };
 
   componentDidMount() {
     this.geoId = navigator.geolocation.watchPosition(
-      (position) => {
+      position => {
         this.setState({
           coords: {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           }
-        })
+        });
       },
-      (error) => {
-        this.setState({ error })
+      error => {
+        this.setState({ error });
       }
-    )
+    );
   }
 
   componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.geoId)
+    navigator.geolocation.clearWatch(this.geoId);
   }
 
   render() {
-    return (
-      <div className="app">
-        {this.state.error ? (
-          <div>Error: {this.state.error.message}</div>
-        ) : this.state.coords ? (
-          <Map
-            lat={this.state.coords.lat}
-            lng={this.state.coords.lng}
-            info="You are here"
-          />
-        ) : (
-          <LoadingDots/>
-        )}
-      </div>
-    )
+    return this.props.render(this.state);
   }
 }
 
-export default App
+class App extends React.Component {
+  render() {
+    return (
+      <div className="app">
+        <GeoPosition
+          render={({ coords, error }) => {
+            return error ? (
+              <div>Error: {error.message}</div>
+            ) : coords ? (
+              <GeoAddress
+                coords={coords}
+                render={({ address, error }) => {
+                  return (
+                    <Map
+                      lat={coords.lat}
+                      lng={coords.lng}
+                      info={error || address || "Loading..."}
+                    />
+                  );
+                }}
+              />
+            ) : (
+              <LoadingDots />
+            );
+          }}
+        />
+      </div>
+    );
+  }
+}
 
+export default App;
