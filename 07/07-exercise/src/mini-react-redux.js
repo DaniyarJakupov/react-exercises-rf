@@ -1,34 +1,57 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-
-/*
-// Tips:
-
-// Get the store's state
-store.getState()
-
-// Dispatch changes to the store
-// (you won't need to call this but you'll pass it to mapDispatchToProps)
-store.dispatch(action)
-
-// subscribe to changes to the store
-store.subscribe(() => {})
-
-// unsubscribe from the store
-unsubscribe = store.subscribe(() => {})
-unsubscribe()
-*/
+import React from "react";
+import PropTypes from "prop-types";
 
 class Provider extends React.Component {
+  /*============== Create context for redux store =============*/
+  static childContextTypes = {
+    store: PropTypes.object.isRequired
+  };
+
+  getChildContext() {
+    return {
+      store: this.props.store
+    };
+  }
+
+  // Render children elements
   render() {
-    return null
+    return this.props.children;
   }
 }
 
-const connect = (mapStateToProps, mapDispatchToProps) => {
-  return (Component) => {
-    return Component
-  }
-}
+// HOC pattern
+// connect(mapStateToProps, mapDispatchToProps)(Component)
+const connect = (mapStateToProps, mapDispatchToProps) => Component => {
+  // 2nd function takes Component as an arg and returns wrapped version of provided Component
+  return class extends React.Component {
+    // Get access to redux store through react context
+    static contextTypes = {
+      store: PropTypes.object.isRequired
+    };
 
-export { Provider, connect }
+    // Subscribe to redux store
+    componentDidMount() {
+      this.unsubscribe = this.context.store.subscribe(() => {
+        this.forceUpdate();
+      });
+    }
+
+    componentWillUnmount() {
+      this.unsubscribe();
+    }
+
+    render() {
+      const { dispatch, getState } = this.context.store;
+      const state = getState();
+
+      return (
+        <Component
+          {...mapStateToProps(state)}
+          {...mapDispatchToProps(dispatch)}
+        />
+      );
+    }
+  };
+};
+
+export { Provider, connect };
