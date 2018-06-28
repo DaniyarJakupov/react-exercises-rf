@@ -4,18 +4,18 @@ import { createBrowserHistory } from 'history'
 import * as PropTypes from 'prop-types'
 
 /*
-// create a new history instance
+* create a new history instance
 history = createBrowserHistory()
 
-// read the current URL
+* read the current URL
 history.location
 
-// listen for changes to the URL
+* listen for changes to the URL
 const unsubscribe = history.listen(() => {
   history.location // is now different
 })
 
-// change the URL
+* change the URL
 history.push('/something')
 */
 
