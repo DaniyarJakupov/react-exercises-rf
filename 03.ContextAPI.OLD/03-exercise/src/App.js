@@ -58,6 +58,7 @@ class AudioPlayer extends React.Component {
     source: PropTypes.string.isRequired
   };
 
+  /*============== Create context for audio state =============*/
   static childContextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -88,6 +89,7 @@ class AudioPlayer extends React.Component {
       }
     };
   }
+  /* ================================================== */
 
   onAudioLoad = () => {
     this.setState({ loaded: true, duration: this.audio.duration });
@@ -118,6 +120,7 @@ class AudioPlayer extends React.Component {
 }
 
 class Play extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -137,6 +140,7 @@ class Play extends React.Component {
 }
 
 class Pause extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -156,6 +160,7 @@ class Pause extends React.Component {
 }
 
 class PlayPause extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -168,6 +173,7 @@ class PlayPause extends React.Component {
 }
 
 class JumpForward extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -188,6 +194,7 @@ class JumpForward extends React.Component {
 }
 
 class JumpBack extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
@@ -208,6 +215,7 @@ class JumpBack extends React.Component {
 }
 
 class Progress extends React.Component {
+  // Get access to audio context
   static contextTypes = {
     audio: PropTypes.object.isRequired
   };
